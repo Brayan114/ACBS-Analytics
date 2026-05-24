@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Activity, ShieldCheck, Zap, AlertTriangle, Wifi, ArrowRight } from 'lucide-react';
+import { Activity, Zap, Wifi, ArrowRight, ShieldCheck, Trash2 } from 'lucide-react';
 
 interface CheckedInPlayer {
   tag: string;
@@ -34,19 +34,16 @@ export const TelemetryCheckIn: React.FC<TelemetryCheckInProps> = ({
       setPingStep(i + 1);
       const startTime = performance.now();
       try {
-        // no-cors mode ensures the request is fired and resolved without CORS blocking the network RTT timing
         await fetch(pingEndpoint, {
           method: 'GET',
           mode: 'no-cors',
           cache: 'no-cache',
         });
       } catch (err) {
-        // Network errors or response failures are ignored; we still capture the RTT timing
+        // Suppress network timing errors
       }
       const endTime = performance.now();
       pings.push(endTime - startTime);
-      
-      // Delay slightly between requests
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
@@ -89,7 +86,6 @@ export const TelemetryCheckIn: React.FC<TelemetryCheckInProps> = ({
       const updatedLobby = [...lobbyPlayers.filter(p => p.tag !== newPlayer.tag), newPlayer];
       setLobbyPlayers(updatedLobby);
       
-      // Reset inputs
       setPlayerTag('');
       setPlayerName('');
     } catch (err) {
@@ -116,33 +112,34 @@ export const TelemetryCheckIn: React.FC<TelemetryCheckInProps> = ({
   const isLobbyFull = lobbyPlayers.length === 6;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl">
-      <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-800">
+    <div className="max-w-4xl mx-auto p-6 bg-[#131313] border border-[#ffffff10] rounded-[8px] shadow-2xl text-[#e5e2e1]">
+      {/* Header bar */}
+      <div className="flex items-center justify-between mb-8 pb-4 border-b border-[#ffffff10]">
         <div>
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-indigo-500 bg-clip-text text-transparent">
-            Lobby Check-In & Network Telemetry
+          <h2 className="text-xl font-extrabold uppercase tracking-wide text-[#e5e2e1] flex items-center gap-2">
+            <Zap className="w-5 h-5 text-[#ffd700]" /> Lobby Check-In & Telemetry
           </h2>
-          <p className="text-slate-400 text-sm mt-1">
-            Register all 6 active match players and test latency routes to AWS Frankfurt (eu-central-1).
+          <p className="text-xs text-[#d0c6ab] mt-1 font-medium">
+            Register players and test network latency routes to AWS Frankfurt (eu-central-1)
           </p>
         </div>
-        <div className="flex items-center gap-2 bg-slate-950 px-3 py-1.5 rounded-full border border-slate-800">
-          <Wifi className="w-4 h-4 text-cyan-400 animate-pulse" />
-          <span className="text-xs text-slate-300 font-mono">{lobbyPlayers.length} / 6 Verified</span>
+        <div className="flex items-center gap-2 bg-[#0e0e0e] px-3.5 py-1.5 rounded-[4px] border border-[#ffffff10]">
+          <Wifi className="w-4 h-4 text-[#00eefc]" />
+          <span className="text-xs font-mono font-bold text-[#e5e2e1]">{lobbyPlayers.length} / 6 Ready</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Check In Form */}
-        <div className="bg-slate-950 p-5 rounded-xl border border-slate-800/80">
-          <h3 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
-            <Activity className="w-5 h-5 text-indigo-400" /> Player Registration
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Left Form: Registration */}
+        <div className="bg-[#121212] p-5 rounded-[8px] border border-[#ffffff0a]">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-[#e5e2e1] mb-4 flex items-center gap-2 border-b border-[#ffffff0a] pb-2">
+            <Activity className="w-4 h-4 text-[#ffd700]" /> Registration Form
           </h3>
 
           <form onSubmit={handleCheckIn} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
-                Player Name / Handle
+              <label className="block text-[10px] font-bold text-[#d0c6ab] uppercase tracking-wider mb-1.5">
+                Player Name
               </label>
               <input
                 type="text"
@@ -150,13 +147,13 @@ export const TelemetryCheckIn: React.FC<TelemetryCheckInProps> = ({
                 value={playerName}
                 onChange={(e) => setPlayerName(e.target.value)}
                 disabled={isPinging}
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+                className="w-full bg-[#000000] border border-[#ffffff1b] rounded-[4px] px-3 py-2 text-xs text-[#e5e2e1] placeholder-slate-600 focus:outline-none focus:border-[#00eefc] focus:ring-1 focus:ring-[#00eefc] transition-all"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+              <label className="block text-[10px] font-bold text-[#d0c6ab] uppercase tracking-wider mb-1.5">
                 Supercell Player Tag
               </label>
               <input
@@ -165,37 +162,37 @@ export const TelemetryCheckIn: React.FC<TelemetryCheckInProps> = ({
                 value={playerTag}
                 onChange={(e) => setPlayerTag(e.target.value)}
                 disabled={isPinging}
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+                className="w-full bg-[#000000] border border-[#ffffff1b] rounded-[4px] px-3 py-2 text-xs text-[#e5e2e1] placeholder-slate-600 focus:outline-none focus:border-[#00eefc] focus:ring-1 focus:ring-[#00eefc] transition-all"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
-                Team Roster Assignment
+              <label className="block text-[10px] font-bold text-[#d0c6ab] uppercase tracking-wider mb-1.5">
+                Team Allocation
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => setSelectedTeam('blue')}
-                  className={`py-2 text-xs font-bold rounded-lg border transition-all ${
+                  className={`py-2 text-[10px] uppercase font-bold rounded-[4px] border transition-all ${
                     selectedTeam === 'blue'
-                      ? 'bg-blue-600/20 border-blue-500 text-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.2)]'
-                      : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
+                      ? 'bg-blue-950/40 border-[#00eefc] text-[#00eefc] shadow-[0_0_8px_rgba(0,238,252,0.15)]'
+                      : 'bg-[#000000] border-[#ffffff10] text-slate-400 hover:border-[#ffffff20]'
                   }`}
                 >
-                  Blue Roster
+                  Blue Team
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedTeam('red')}
-                  className={`py-2 text-xs font-bold rounded-lg border transition-all ${
+                  className={`py-2 text-[10px] uppercase font-bold rounded-[4px] border transition-all ${
                     selectedTeam === 'red'
-                      ? 'bg-red-600/20 border-red-500 text-red-400 shadow-[0_0_10px_rgba(239,68,68,0.2)]'
-                      : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
+                      ? 'bg-red-950/40 border-[#ffcfc2] text-[#ffcfc2] shadow-[0_0_8px_rgba(255,207,194,0.15)]'
+                      : 'bg-[#000000] border-[#ffffff10] text-slate-400 hover:border-[#ffffff20]'
                   }`}
                 >
-                  Red Roster
+                  Red Team
                 </button>
               </div>
             </div>
@@ -203,140 +200,156 @@ export const TelemetryCheckIn: React.FC<TelemetryCheckInProps> = ({
             <button
               type="submit"
               disabled={isPinging || !playerName || !playerTag}
-              className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-semibold text-sm py-2 px-4 rounded-lg shadow-lg disabled:opacity-40 disabled:cursor-not-allowed transition-all mt-6"
+              className="w-full bg-[#ffd700] text-[#3a3000] hover:bg-[#ffe16d] text-xs font-bold uppercase tracking-wider py-2.5 px-4 rounded-full transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-md shadow-[#ffd700]/10 mt-6 active:scale-95"
             >
-              {isPinging ? 'Pinging...' : 'Test & Check In'}
+              {isPinging ? 'Handshaking...' : 'Test RTT & Add'}
             </button>
           </form>
 
           {isPinging && (
-            <div className="mt-5 p-4 bg-slate-900 rounded-lg border border-slate-800 text-center animate-pulse">
-              <div className="text-xs text-indigo-400 font-bold uppercase tracking-wider mb-1.5">
-                AWS Frankfurt latency check
+            <div className="mt-5 p-4 bg-[#0e0e0e] rounded-[4px] border border-[#ffffff0a] text-center">
+              <div className="text-[9px] text-[#ffd700] font-bold uppercase tracking-wider mb-1">
+                Pinging AWS Frankfurt (eu-central-1)
               </div>
               <div className="flex justify-center gap-1.5 mt-2">
                 {[1, 2, 3, 4].map((step) => (
                   <div
                     key={step}
-                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                      pingStep >= step ? 'bg-indigo-500 scale-110 shadow-md' : 'bg-slate-800'
+                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                      pingStep >= step ? 'bg-[#00eefc] scale-110 shadow-[0_0_8px_rgba(0,238,252,0.6)]' : 'bg-slate-800'
                     }`}
                   />
                 ))}
               </div>
-              <div className="text-[10px] text-slate-400 mt-2">Running packet ping loop {pingStep}/4</div>
+              <div className="text-[8px] text-slate-500 mt-2 font-mono">PACKET LOG {pingStep} OF 4</div>
             </div>
           )}
 
           {results && !isPinging && (
-            <div className="mt-5 p-4 bg-slate-900 rounded-lg border border-slate-800/80">
-              <div className="text-xs text-slate-400 font-semibold mb-2">LAST CHECK-IN RESULT:</div>
+            <div className="mt-5 p-3.5 bg-[#0e0e0e] rounded-[4px] border border-[#ffffff0a]">
+              <div className="text-[9px] text-slate-500 font-bold uppercase tracking-wider mb-1.5">Last Checked Latency:</div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-bold text-slate-200">Avg RTT:</span>
-                <span className="font-mono text-sm font-bold text-cyan-400">{results.rtt.toFixed(1)} ms</span>
+                <span className="text-xs font-semibold text-slate-300">RTT Average:</span>
+                <span className="font-mono text-xs font-bold text-[#00eefc]">{results.rtt.toFixed(0)} ms</span>
               </div>
-              <div className="text-xs font-semibold p-1.5 bg-slate-950 rounded border border-slate-800 text-slate-300">
+              <div className={`text-[9px] font-bold p-1.5 rounded-[4px] border text-center ${
+                results.rtt < 40 
+                  ? 'bg-emerald-950/20 border-emerald-500/20 text-[#43FF77]' 
+                  : results.rtt > 140 
+                    ? 'bg-red-950/20 border-red-500/20 text-[#ffcfc2]' 
+                    : 'bg-yellow-950/20 border-yellow-500/20 text-[#ffd700]'
+              }`}>
                 {results.tag}
               </div>
             </div>
           )}
         </div>
 
-        {/* Live Rosters */}
-        <div className="md:col-span-2 space-y-6">
-          {/* Blue Team */}
-          <div className="bg-blue-950/20 border border-blue-900/35 p-4 rounded-xl">
-            <h4 className="text-sm font-bold text-blue-400 mb-3 uppercase tracking-wider flex items-center justify-between">
-              <span>Blue Team Roster</span>
-              <span className="text-xs text-slate-500 font-normal">{bluePlayers.length} / 3 checked in</span>
-            </h4>
-            <div className="space-y-2">
-              {bluePlayers.length === 0 ? (
-                <div className="text-xs text-slate-600 italic p-3 text-center border border-dashed border-blue-900/20 rounded">
-                  No Blue Team players checked in yet
-                </div>
-              ) : (
-                bluePlayers.map((player) => (
-                  <div key={player.tag} className="bg-slate-950 border border-blue-950 px-3 py-2 rounded-lg flex items-center justify-between">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-slate-200">{player.name}</span>
-                        <span className="text-xs text-slate-500 font-mono">{player.tag}</span>
+        {/* Rosters display (2 Columns in center/right) */}
+        <div className="md:col-span-2 space-y-4 flex flex-col justify-between">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Blue Team list */}
+            <div className="bg-[#121212] p-4 rounded-[8px] border border-[#ffffff0a] flex flex-col justify-between min-h-[190px]">
+              <div>
+                <h4 className="text-xs font-bold text-[#00eefc] uppercase tracking-wider mb-3 pb-1.5 border-b border-[#ffffff0a] flex justify-between items-center">
+                  <span>Blue Team</span>
+                  <span className="font-mono text-[9px] text-slate-500 font-normal">{bluePlayers.length}/3</span>
+                </h4>
+                <div className="space-y-2">
+                  {bluePlayers.map((player) => (
+                    <div key={player.tag} className="bg-[#000000] border border-[#ffffff08] p-2.5 rounded-[4px] flex items-center justify-between">
+                      <div className="truncate pr-2">
+                        <div className="flex items-center gap-1.5 truncate">
+                          <span className="text-xs font-extrabold text-slate-200 truncate">{player.name}</span>
+                          <span className="text-[9px] text-slate-500 font-mono flex-shrink-0">{player.tag}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 mt-0.5 text-[9px] text-slate-400 font-medium">
+                          <span>RTT: {player.rtt.toFixed(0)}ms</span>
+                          <span className="text-slate-600">•</span>
+                          <span className={`truncate font-bold ${
+                            player.rtt < 40 ? 'text-[#43FF77]' : player.rtt > 140 ? 'text-[#ffcfc2]' : 'text-[#ffd700]'
+                          }`}>
+                            {player.regionTag}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1.5 mt-1 text-[10px] text-slate-400">
-                        <span>RTT: {player.rtt.toFixed(0)}ms</span>
-                        <span>•</span>
-                        <span className={`font-semibold ${player.rtt < 40 ? 'text-green-400' : player.rtt > 140 ? 'text-red-400' : 'text-slate-300'}`}>
-                          {player.regionTag}
-                        </span>
-                      </div>
+                      <button
+                        onClick={() => handleRemovePlayer(player.tag)}
+                        className="text-[10px] text-slate-500 hover:text-red-400 transition-colors px-1 py-0.5 ml-1"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
-                    <button
-                      onClick={() => handleRemovePlayer(player.tag)}
-                      className="text-xs text-slate-500 hover:text-red-400 transition-colors px-2 py-1"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))
-              )}
+                  ))}
+                  {bluePlayers.length === 0 && (
+                    <div className="text-[10px] text-slate-600 italic text-center py-6 border border-dashed border-[#ffffff08] rounded-[4px]">
+                      No players checked in
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Red Team list */}
+            <div className="bg-[#121212] p-4 rounded-[8px] border border-[#ffffff0a] flex flex-col justify-between min-h-[190px]">
+              <div>
+                <h4 className="text-xs font-bold text-[#ffcfc2] uppercase tracking-wider mb-3 pb-1.5 border-b border-[#ffffff0a] flex justify-between items-center">
+                  <span>Red Team</span>
+                  <span className="font-mono text-[9px] text-slate-500 font-normal">{redPlayers.length}/3</span>
+                </h4>
+                <div className="space-y-2">
+                  {redPlayers.map((player) => (
+                    <div key={player.tag} className="bg-[#000000] border border-[#ffffff08] p-2.5 rounded-[4px] flex items-center justify-between">
+                      <div className="truncate pr-2">
+                        <div className="flex items-center gap-1.5 truncate">
+                          <span className="text-xs font-extrabold text-slate-200 truncate">{player.name}</span>
+                          <span className="text-[9px] text-slate-500 font-mono flex-shrink-0">{player.tag}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 mt-0.5 text-[9px] text-slate-400 font-medium">
+                          <span>RTT: {player.rtt.toFixed(0)}ms</span>
+                          <span className="text-slate-600">•</span>
+                          <span className={`truncate font-bold ${
+                            player.rtt < 40 ? 'text-[#43FF77]' : player.rtt > 140 ? 'text-[#ffcfc2]' : 'text-[#ffd700]'
+                          }`}>
+                            {player.regionTag}
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleRemovePlayer(player.tag)}
+                        className="text-[10px] text-slate-500 hover:text-red-400 transition-colors px-1 py-0.5 ml-1"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                  {redPlayers.length === 0 && (
+                    <div className="text-[10px] text-slate-600 italic text-center py-6 border border-dashed border-[#ffffff08] rounded-[4px]">
+                      No players checked in
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Red Team */}
-          <div className="bg-red-950/20 border border-red-900/35 p-4 rounded-xl">
-            <h4 className="text-sm font-bold text-red-400 mb-3 uppercase tracking-wider flex items-center justify-between">
-              <span>Red Team Roster</span>
-              <span className="text-xs text-slate-500 font-normal">{redPlayers.length} / 3 checked in</span>
-            </h4>
-            <div className="space-y-2">
-              {redPlayers.length === 0 ? (
-                <div className="text-xs text-slate-600 italic p-3 text-center border border-dashed border-red-900/20 rounded">
-                  No Red Team players checked in yet
-                </div>
-              ) : (
-                redPlayers.map((player) => (
-                  <div key={player.tag} className="bg-slate-950 border border-red-950 px-3 py-2 rounded-lg flex items-center justify-between">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-slate-200">{player.name}</span>
-                        <span className="text-xs text-slate-500 font-mono">{player.tag}</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 mt-1 text-[10px] text-slate-400">
-                        <span>RTT: {player.rtt.toFixed(0)}ms</span>
-                        <span>•</span>
-                        <span className={`font-semibold ${player.rtt < 40 ? 'text-green-400' : player.rtt > 140 ? 'text-red-400' : 'text-slate-300'}`}>
-                          {player.regionTag}
-                        </span>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => handleRemovePlayer(player.tag)}
-                      className="text-xs text-slate-500 hover:text-red-400 transition-colors px-2 py-1"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))
-              )}
-            </div>
+          {/* Action bottom section */}
+          <div className="pt-4 border-t border-[#ffffff0a] flex justify-end">
+            <button
+              onClick={handleProceed}
+              disabled={!isLobbyFull}
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-extrabold uppercase tracking-wider transition-all ${
+                isLobbyFull
+                  ? 'bg-[#ffd700] text-[#3a3000] hover:bg-[#ffe16d] cursor-pointer shadow-lg shadow-[#ffd700]/10 hover:shadow-[#ffd700]/20 active:scale-95'
+                  : 'bg-slate-800 text-slate-500 cursor-not-allowed'
+              }`}
+            >
+              Enter Draft Room <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
         </div>
-      </div>
-
-      <div className="mt-8 pt-4 border-t border-slate-800 flex justify-end">
-        <button
-          onClick={handleProceed}
-          disabled={!isLobbyFull}
-          className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${
-            isLobbyFull
-              ? 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white cursor-pointer shadow-[0_0_15px_rgba(59,130,246,0.3)]'
-              : 'bg-slate-800 text-slate-500 cursor-not-allowed'
-          }`}
-        >
-          Proceed to Pick & Ban Draft <ArrowRight className="w-4 h-4" />
-        </button>
       </div>
     </div>
   );
 };
+export default TelemetryCheckIn;

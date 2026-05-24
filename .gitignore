@@ -19,3 +19,6 @@ yarn-error.log*
 # System files
 .DS_Store
 Thumbs.db
+
+# Design exports
+stitch_acbs_african_esports_analytics/
