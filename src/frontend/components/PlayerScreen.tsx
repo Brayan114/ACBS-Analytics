@@ -244,7 +244,7 @@ export const PlayerScreen: React.FC<PlayerScreenProps> = ({ onBackToHome, initia
             {/* Avatar block with level badge */}
             <div className="relative flex flex-col items-center">
               <div className="w-[100px] h-[100px] bg-[#1a1a1a] rounded-[16px] overflow-hidden border-2 flex items-center justify-center shadow-inner" style={{ borderColor: profile.nameColor ? profile.nameColor.replace('0x', '#') : '#ff0000' }}>
-                <img src={`/profile-icons/${profile.iconId}.png`} onError={(e) => (e.currentTarget.src = '/avatar3.png')} alt="Avatar" className="w-full h-full object-cover" />
+                <img src={`/profile-icons/regular/${profile.iconId}.png`} onError={(e) => (e.currentTarget.src = '/avatar3.png')} alt="Avatar" className="w-full h-full object-cover" />
               </div>
               {/* Level badge */}
               <div className="absolute -bottom-2 bg-[#1a1a1a] border border-[#ffffff15] px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase text-slate-300 tracking-wider">
@@ -273,7 +273,6 @@ export const PlayerScreen: React.FC<PlayerScreenProps> = ({ onBackToHome, initia
             {[
               { id: 'profile', label: 'Profile', icon: '👾' },
               { id: 'brawlers', label: 'Brawlers', icon: '🏆' },
-              { id: 'analytics', label: 'Analytics', icon: 'ℹ️' },
               { id: 'battlelog', label: 'Battle Log', icon: '📁' }
             ].map(tab => {
               const isActive = activeTab === tab.id;
@@ -481,7 +480,7 @@ export const PlayerScreen: React.FC<PlayerScreenProps> = ({ onBackToHome, initia
                     BRAWLERS COLLECTION
                   </h3>
                   <span className="text-[10px] font-bold text-slate-400 bg-white/5 border border-white/5 px-2.5 py-1 rounded-md tracking-wider">
-                    {profile.allBrawlers?.length || 0} / 86 OWNED
+                    {profile.allBrawlers?.length || 0} BRAWLERS
                   </span>
                 </div>
 
@@ -521,141 +520,18 @@ export const PlayerScreen: React.FC<PlayerScreenProps> = ({ onBackToHome, initia
                       {/* Star Powers & Gadgets Indicators */}
                       <div className="flex items-center justify-center gap-1 pt-1 border-t border-[#ffffff08] w-full mt-1">
                         {brawler.starPowers?.map((sp) => (
-                          <img key={sp.id} src={`/star-powers/${sp.id}.png`} alt={sp.name} title={sp.name} className="w-4 h-4 object-contain rounded-full border border-[#ffffff15]" onError={(e) => e.currentTarget.style.display = 'none'} />
+                          <img key={sp.id} src={`/star-powers/regular/${sp.id}.png`} alt={sp.name} title={sp.name} className="w-4 h-4 object-contain rounded-full border border-[#ffffff15]" onError={(e) => e.currentTarget.style.display = 'none'} />
                         ))}
                         {brawler.gadgets?.map((g) => (
-                          <img key={g.id} src={`/gadgets/${g.id}.png`} alt={g.name} title={g.name} className="w-4 h-4 object-contain rounded border border-[#ffffff15]" onError={(e) => e.currentTarget.style.display = 'none'} />
+                          <img key={g.id} src={`/gadgets/regular/${g.id}.png`} alt={g.name} title={g.name} className="w-4 h-4 object-contain rounded border border-[#ffffff15]" onError={(e) => e.currentTarget.style.display = 'none'} />
                         ))}
                         {brawler.gears?.map((g) => (
-                          <img key={g.id} src={`/gears/${g.id}.png`} alt={g.name} title={g.name} className="w-4 h-4 object-contain rounded-full border border-purple-500/30" onError={(e) => e.currentTarget.style.display = 'none'} />
+                          <img key={g.id} src={`/gears/regular/${g.id}.png`} alt={g.name} title={g.name} className="w-4 h-4 object-contain rounded-full border border-purple-500/30" onError={(e) => e.currentTarget.style.display = 'none'} />
                         ))}
                       </div>
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
-
-            {/* ANALYTICS TAB */}
-            {activeTab === 'analytics' && (
-              <div className="space-y-4 animate-in slide-in-from-right-4 duration-300">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-xs font-black tracking-widest text-slate-500 uppercase">
-                    PERFORMANCE ANALYTICS
-                  </h3>
-                  {loadingBattleLog && (
-                    <div className="w-4 h-4 border-2 border-[#00eefc]/20 border-t-[#00eefc] rounded-full animate-spin"></div>
-                  )}
-                </div>
-
-                {/* Top Row: Score & Teammates/Opponents container */}
-                <div className="flex flex-col md:flex-row gap-4">
-                  {/* Left Column (Main Stats) */}
-                  <div className="flex-1 flex flex-col gap-4">
-                    {/* Performance Score */}
-                    <div className="bg-gradient-to-br from-[#1a1225] to-[#121212] border border-[#ffffff0a] p-5 rounded-2xl flex justify-between items-center shadow-lg">
-                      <div className="text-center">
-                        <h4 className="text-3xl font-black text-indigo-400">84</h4>
-                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Overall Rating</span>
-                      </div>
-                      <div className="text-center">
-                        <h4 className="text-xl font-black text-amber-500">12%</h4>
-                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Star Rate</span>
-                      </div>
-                      <div className="text-center">
-                        <h4 className="text-xl font-black text-[#00eefc]">Stable</h4>
-                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Consistency</span>
-                      </div>
-                      <div className="text-center">
-                        <h4 className="text-xl font-black text-emerald-400">+6</h4>
-                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Avg / Game</span>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row gap-4">
-                      {/* Recent Trend */}
-                      <div className="bg-[#121212] border border-[#ffffff0a] p-4 rounded-xl flex-1 flex flex-col justify-between">
-                        <div className="flex justify-between items-center mb-4">
-                          <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Recent Trend</span>
-                          <span className="text-xs font-black text-emerald-400">+48</span>
-                        </div>
-                        <div className="flex items-end gap-1.5 h-16 w-full px-2">
-                          {battleLog.slice(0, 15).reverse().map((log, i) => {
-                            const tc = log.battle?.trophyChange || 0;
-                            const h = Math.min(100, Math.max(10, Math.abs(tc) * 8));
-                            return (
-                              <div key={i} className="w-full flex flex-col justify-end items-center h-full gap-1">
-                                <div 
-                                  className={`w-full rounded-sm ${tc > 0 ? 'bg-emerald-500' : tc < 0 ? 'bg-red-500' : 'bg-slate-700'}`} 
-                                  style={{ height: `${h}%` }}
-                                ></div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                        <div className="flex justify-between mt-2 text-[8px] font-bold text-slate-600 uppercase">
-                          <span>Oldest</span>
-                          <span>Recent</span>
-                        </div>
-                      </div>
-
-                      {/* Trophy Breakdown */}
-                      <div className="bg-[#121212] border border-[#ffffff0a] p-4 rounded-xl flex-1 flex flex-col justify-between">
-                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-4">Trophy Breakdown</span>
-                        <div className="grid grid-cols-2 gap-2 flex-1">
-                          <div className="bg-[#1a1a1a] rounded flex flex-col items-center justify-center py-2">
-                            <span className="text-[8px] uppercase text-slate-500">Gained</span>
-                            <span className="text-sm font-black text-emerald-400">
-                              +{battleLog.reduce((acc, log) => acc + (log.battle?.trophyChange > 0 ? log.battle.trophyChange : 0), 0)}
-                            </span>
-                          </div>
-                          <div className="bg-[#1a1a1a] rounded flex flex-col items-center justify-center py-2">
-                            <span className="text-[8px] uppercase text-slate-500">Lost</span>
-                            <span className="text-sm font-black text-red-400">
-                              {battleLog.reduce((acc, log) => acc + (log.battle?.trophyChange < 0 ? log.battle.trophyChange : 0), 0)}
-                            </span>
-                          </div>
-                          <div className="bg-[#1a1a1a] rounded flex flex-col items-center justify-center py-2">
-                            <span className="text-[8px] uppercase text-slate-500">Avg Win</span>
-                            <span className="text-sm font-black text-emerald-400">+8</span>
-                          </div>
-                          <div className="bg-[#1a1a1a] rounded flex flex-col items-center justify-center py-2">
-                            <span className="text-[8px] uppercase text-slate-500">Avg Loss</span>
-                            <span className="text-sm font-black text-red-400">-6</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right Column (Side Panels) */}
-                  <div className="w-full md:w-64 flex flex-col gap-4">
-                    {/* Rank Distribution */}
-                    <div className="bg-[#121212] border border-[#ffffff0a] p-4 rounded-xl">
-                      <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-3 block">Rank Distribution</span>
-                      <div className="flex items-end justify-between h-20 border-b border-[#ffffff10] pb-2">
-                        {/* Mock Distribution bars based on brawler count */}
-                        {[
-                          { color: 'bg-amber-700', h: '20%' },
-                          { color: 'bg-slate-400', h: '40%' },
-                          { color: 'bg-amber-400', h: '80%' },
-                          { color: 'bg-cyan-400', h: '30%' },
-                          { color: 'bg-purple-500', h: '60%' }
-                        ].map((bar, i) => (
-                          <div key={i} className={`w-8 rounded-t-sm ${bar.color}`} style={{ height: bar.h }}></div>
-                        ))}
-                      </div>
-                      <div className="flex justify-between mt-2 px-1">
-                        <img src="/trophies.png" className="w-3 h-3 grayscale" />
-                        <img src="/trophies.png" className="w-3 h-3 grayscale contrast-200" />
-                        <img src="/trophies.png" className="w-3 h-3" />
-                        <img src="/trophies.png" className="w-3 h-3 hue-rotate-180" />
-                        <img src="/trophies.png" className="w-3 h-3 hue-rotate-90 saturate-200" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
               </div>
             )}
 
