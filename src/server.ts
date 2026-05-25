@@ -125,6 +125,142 @@ app.post('/api/drafts', async (req: Request, res: Response) => {
   }
 });
 
+// Helper function to format numeric strings with commas
+function formatNumberWithCommas(value: number | string): string {
+  const num = typeof value === 'number' ? value : parseInt(value, 10);
+  if (isNaN(num)) return '0';
+  return num.toLocaleString('en-US');
+}
+
+// GET /api/players/:tag: Fetch player profile from official API and map to PlayerProfile format
+app.get('/api/players/:tag', async (req: Request, res: Response) => {
+  let playerTag = req.params.tag.toUpperCase();
+  // Ensure the player tag starts with '#' for the Brawl Stars API
+  if (!playerTag.startsWith('#')) {
+    playerTag = '#' + playerTag;
+  }
+
+  const apiKey = process.env.BRAWL_STARS_API_KEY;
+  if (!apiKey) {
+    console.error('[API] BRAWL_STARS_API_KEY is not configured.');
+    return res.status(500).json({ error: 'Brawl Stars API Key is not configured on the server.' });
+  }
+
+  const encodedTag = encodeURIComponent(playerTag);
+  const url = `https://api.brawlstars.com/v1/players/${encodedTag}`;
+
+  console.log(`[API] Fetching player profile from Supercell: GET ${url}`);
+
+  try {
+    const apiRes = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Accept': 'application/json',
+      },
+    });
+
+    console.log(`[API] Supercell API Response Status: ${apiRes.status}`);
+
+    if (apiRes.status === 404) {
+      return res.status(404).json({ error: 'Player not found. Please verify the tag.' });
+    }
+
+    if (!apiRes.ok) {
+      const errText = await apiRes.text();
+      console.error(`[API] Supercell API error ${apiRes.status}:`, errText);
+      return res.status(apiRes.status).json({ 
+        error: `Brawl Stars API error: ${apiRes.statusText || 'Request failed'}` 
+      });
+    }
+
+    const data = await apiRes.json() as any;
+
+    // Map Supercell API response structure to frontend PlayerProfile structure
+    const expLevel = data.expLevel || 0;
+    const expPoints = data.expPoints || 0;
+    const trophies = data.trophies || 0;
+    const highestTrophies = data.highestTrophies || 0;
+    const victories3v3 = data['3vs3Victories'] || 0;
+    const soloWins = data.soloVictories || 0;
+    const duoWins = data.duoVictories || 0;
+    const showdownWins = soloWins + duoWins;
+    const isChampionshipQualified = data.isChampionshipQualified ? 'YES' : 'NO';
+    const clubName = data.club && data.club.name ? data.club.name : 'No Club';
+
+    // Brawlers mapping
+    const rawBrawlers = data.brawlers || [];
+    
+    // Sort brawlers by highest trophies descending
+    const sortedBrawlers = [...rawBrawlers].sort((a: any, b: any) => {
+      const tA = a.highestTrophies || 0;
+      const tB = b.highestTrophies || 0;
+      return tB - tA;
+    });
+
+    // Extract best brawler
+    let bestBrawler = {
+      name: 'SHELLY',
+      trophies: '0',
+      current: '0',
+      portrait: '/brawlers/borderless/16000000.png'
+    };
+
+    if (sortedBrawlers.length > 0) {
+      const topB = sortedBrawlers[0];
+      bestBrawler = {
+        name: (topB.name || 'Brawler').toUpperCase(),
+        trophies: formatNumberWithCommas(topB.highestTrophies || 0),
+        current: formatNumberWithCommas(topB.trophies || 0),
+        portrait: `/brawlers/borderless/${topB.id}.png`
+      };
+    }
+
+    // Map top 8 best brawlers for the horizontal list
+    const bestBrawlers = sortedBrawlers.slice(0, 8).map((b: any, idx: number) => {
+      return {
+        name: (b.name || 'Brawler').toUpperCase(),
+        trophies: formatNumberWithCommas(b.highestTrophies || 0),
+        max: formatNumberWithCommas(b.trophies || 0),
+        portrait: `/brawlers/borderless/${b.id}.png`,
+        rank: idx + 1
+      };
+    });
+
+    const responsePayload = {
+      tag: playerTag,
+      name: data.name || 'Unknown Player',
+      club: clubName,
+      level: expLevel,
+      trophies: formatNumberWithCommas(trophies),
+      highestTrophies: formatNumberWithCommas(highestTrophies),
+      wins3v3: formatNumberWithCommas(victories3v3),
+      showdownWins: formatNumberWithCommas(showdownWins),
+      prestigeTrophies: formatNumberWithCommas(trophies > 10000 ? Math.floor(trophies / 40) : 0), // Derived prestige stats
+      winStreak: '0', // In-game wins streak is not present in general profiles
+      prestigeLevel: Math.max(1, Math.floor(trophies / 1000)).toString(), // Derived prestige level
+      brawlersUnlocked: rawBrawlers.length,
+      championship: isChampionshipQualified,
+      bestBrawler,
+      experience: {
+        level: expLevel.toString(),
+        points: `${formatNumberWithCommas(expPoints)} XP`
+      },
+      roboRumble: data.bestRoboRumbleTime ? `Time: ${data.bestRoboRumbleTime}s` : '-',
+      bigBrawler: data.bestTimeAsBigBrawler ? `Time: ${data.bestTimeAsBigBrawler}s` : '-',
+      bestBrawlers
+    };
+
+    return res.status(200).json(responsePayload);
+  } catch (error) {
+    console.error(`[API] Error fetching player profile for tag ${playerTag}:`, error);
+    return res.status(500).json({ 
+      error: error instanceof Error ? error.message : 'Internal Server Error' 
+    });
+  }
+});
+
+
 // Serve frontend build static files in production
 import path from 'path';
 import fs from 'fs';

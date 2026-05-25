@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { HomeScreen } from './components/HomeScreen';
 import { TelemetryCheckIn } from './components/TelemetryCheckIn';
 import { DraftDashboard } from './components/DraftDashboard';
+import { TeamsScreen } from './components/TeamsScreen';
+import { PlayerScreen } from './components/PlayerScreen';
 import { Menu, Trophy, CheckCircle2, Users, RefreshCw, BarChart2, Home, User, Info, HelpCircle, Award } from 'lucide-react';
 
 interface CheckedInPlayer {
@@ -12,7 +14,7 @@ interface CheckedInPlayer {
   regionTag: string;
 }
 
-type ViewState = 'home' | 'checkin' | 'draft' | 'complete';
+type ViewState = 'home' | 'checkin' | 'draft' | 'complete' | 'teams' | 'player';
 
 export const App: React.FC = () => {
   const [view, setView] = useState<ViewState>('home');
@@ -50,8 +52,8 @@ export const App: React.FC = () => {
   // Nav list matching CoreStats exactly
   const navItems = [
     { label: 'Home', viewTarget: 'home' as ViewState, icon: <Home className="w-4 h-4" /> },
-    { label: 'Teams', viewTarget: 'checkin' as ViewState, icon: <Users className="w-4 h-4" /> },
-    { label: 'Player', viewTarget: 'checkin' as ViewState, icon: <User className="w-4 h-4" /> },
+    { label: 'Teams', viewTarget: 'teams' as ViewState, icon: <Users className="w-4 h-4" /> },
+    { label: 'Player', viewTarget: 'player' as ViewState, icon: <User className="w-4 h-4" /> },
     { label: 'Scrims', viewTarget: 'checkin' as ViewState, icon: <Info className="w-4 h-4" /> },
     { label: 'Brackets', viewTarget: 'checkin' as ViewState, icon: <HelpCircle className="w-4 h-4" /> },
     { label: 'Tournaments', viewTarget: 'checkin' as ViewState, icon: <Trophy className="w-4 h-4" /> },
@@ -64,14 +66,14 @@ export const App: React.FC = () => {
       {/* Sidebar Overlay */}
       {isSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300 animate-in fade-in"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9990] transition-opacity duration-300 animate-in fade-in"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar Drawer */}
       <aside 
-        className={`fixed top-0 left-0 h-full w-[310px] bg-[#050505] border-r border-[#ffffff0a] z-50 flex flex-col transition-transform duration-300 ease-in-out shadow-2xl transform ${
+        className={`fixed top-0 left-0 h-full w-[310px] bg-[#050505] border-r border-[#ffffff0a] z-[9999] flex flex-col transition-transform duration-300 ease-in-out shadow-2xl transform ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -169,7 +171,18 @@ export const App: React.FC = () => {
       {/* Main Body */}
       <main className="flex-1 flex items-center justify-center w-full">
         {view === 'home' && (
-          <HomeScreen onEnterLobby={handleEnterLobby} />
+          <HomeScreen 
+            onEnterLobby={handleEnterLobby} 
+            onViewTeams={() => setView('teams')}
+          />
+        )}
+
+        {view === 'teams' && (
+          <TeamsScreen onBackToHome={() => setView('home')} />
+        )}
+
+        {view === 'player' && (
+          <PlayerScreen onBackToHome={() => setView('home')} />
         )}
 
         {view === 'checkin' && (

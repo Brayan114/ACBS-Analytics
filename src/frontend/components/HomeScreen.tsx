@@ -3,9 +3,10 @@ import { Search, MessageSquare, ExternalLink, X, Compass, Award, Calendar, BarCh
 
 interface HomeScreenProps {
   onEnterLobby: (initialPlayerTag?: string) => void;
+  onViewTeams?: () => void;
 }
 
-export const HomeScreen: React.FC<HomeScreenProps> = ({ onEnterLobby }) => {
+export const HomeScreen: React.FC<HomeScreenProps> = ({ onEnterLobby, onViewTeams }) => {
   const [searchTag, setSearchTag] = useState('');
   const [showAlert, setShowAlert] = useState(true);
 
@@ -33,7 +34,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onEnterLobby }) => {
     { title: 'Draft', desc: 'Simulate manual 3v3 pick/bans', icon: '/3v3.png', action: () => onEnterLobby(), type: 'draft' },
     { title: 'Tournaments', desc: 'Esports tournament brackets', icon: '/trophies.png', action: () => onEnterLobby(), type: 'tournaments' },
     { title: 'Brackets', desc: 'Playoffs structures', icon: '/championship.png', action: () => onEnterLobby(), type: 'brackets' },
-    { title: 'Teams', desc: 'Active team rosters', icon: '/teams.png', action: () => onEnterLobby(), type: 'teams' },
+    { title: 'Teams', desc: 'Active team rosters', icon: '/teams.png', action: () => onViewTeams ? onViewTeams() : onEnterLobby(), type: 'teams' },
     { title: 'Leaderboards', desc: 'Climb player standings', icon: '/prestige.png', action: () => onEnterLobby(), type: 'leaderboards' },
     { title: 'H2H', desc: 'Head-to-head stats comparison', icon: '/challenges.png', action: () => onEnterLobby(), type: 'h2h' },
     { title: 'Meta', desc: 'Brawler win rates & tier lists', icon: '/meta.png', action: () => onEnterLobby(), type: 'meta' },
