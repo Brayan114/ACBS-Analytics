@@ -18,6 +18,22 @@ export const App: React.FC = () => {
   const [view, setView] = useState<ViewState>('home');
   const [players, setPlayers] = useState<CheckedInPlayer[]>([]);
 
+  const handleEnterLobby = (initialPlayerTag?: string) => {
+    if (initialPlayerTag) {
+      // Pre-populate with the searched player tag (marked at 0ms until tested)
+      const newPlayer: CheckedInPlayer = {
+        tag: initialPlayerTag.toUpperCase(),
+        name: 'Searched Player',
+        team: 'blue',
+        rtt: 0,
+        regionTag: 'Awaiting Test',
+      };
+      // Overwrite or append player to the lobby
+      setPlayers((prev) => [...prev.filter(p => p.tag !== newPlayer.tag), newPlayer]);
+    }
+    setView('checkin');
+  };
+
   const handleCheckInComplete = (checkedInPlayers: CheckedInPlayer[]) => {
     setPlayers(checkedInPlayers);
     setView('draft');
@@ -32,46 +48,75 @@ export const App: React.FC = () => {
     setView('checkin');
   };
 
+  // Navigation Links structure
+  const navLinks = [
+    { label: 'Scrims', activeViews: ['checkin', 'complete'] as ViewState[], action: () => setView('checkin') },
+    { label: 'Draft', activeViews: ['draft'] as ViewState[], action: () => setView('draft') },
+    { label: 'Tournaments', activeViews: [] as ViewState[], action: () => setView('home') },
+    { label: 'Meta', activeViews: [] as ViewState[], action: () => setView('home') },
+    { label: 'Leaderboards', activeViews: [] as ViewState[], action: () => setView('home') }
+  ];
+
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-[#e5e2e1] flex flex-col justify-between select-none">
       
-      {/* Glassmorphic Navigation Header */}
-      <header className="border-b border-[#ffffff10] bg-[#121212b3] backdrop-blur-[20px] sticky top-0 z-50">
+      {/* Top Navigation Header matching Stitch Export mockup exactly */}
+      <header className="border-b border-[#ffffff10] bg-[#12121280] backdrop-blur-[20px] sticky top-0 z-50">
         <div className="max-w-[1440px] mx-auto px-6 py-4 flex items-center justify-between">
-          {/* Clicking on the logo returns to the Home Screen */}
+          
+          {/* Logo Group: Shield SVG + Text "ACBS" */}
           <div 
             className="flex items-center gap-3 cursor-pointer group" 
             onClick={() => setView('home')}
           >
-            <div className="w-10 h-10 rounded-[4px] bg-gradient-to-tr from-[#ffd700] to-[#e9c400] flex items-center justify-center font-black text-xl text-black shadow-[0_0_12px_rgba(255,215,0,0.2)] group-hover:scale-105 transition-transform">
+            {/* SVG Logo extracted directly from acbs_analytics_logo/code.html */}
+            <svg width="34" height="34" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="group-hover:scale-105 transition-transform duration-300">
+              <path d="M100 20L30 50V100C30 144.183 61.3401 180 100 180C138.66 180 170 144.183 170 100V50L100 20Z" fill="#121212" stroke="#FFD700" stroke-width="8"/>
+              <path d="M100 40L150 62V100C150 128.5 130 158 100 162C70 158 50 128.5 50 100V62L100 40Z" fill="#1A1A1A"/>
+              <text x="50%" y="105" text-anchor="middle" fill="#FFD700" font-family="Montserrat, sans-serif" font-weight="900" font-size="32">ACBS</text>
+              <text x="50%" y="135" text-anchor="middle" fill="#FFFFFF" font-family="Montserrat, sans-serif" font-weight="700" font-size="14" letter-spacing="2">ANALYTICS</text>
+              <path d="M85 65C85 65 95 60 100 70C105 60 115 65 115 65" stroke="#FFD700" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+
+            <h1 className="font-black text-xl text-[#ffd700] uppercase tracking-wider font-sans leading-none hidden sm:block">
               ACBS
-            </div>
-            <div>
-              <h1 className="font-extrabold tracking-wider text-base text-[#e5e2e1] uppercase leading-none group-hover:text-[#ffd700] transition-colors">
-                ACBS Analytics
-              </h1>
-              <span className="text-[9px] uppercase font-bold tracking-widest text-[#00eefc] block mt-1">
-                African Esports Platform
-              </span>
-            </div>
+            </h1>
           </div>
           
-          <div className="flex items-center gap-6">
-            <div className="hidden sm:flex items-center gap-2 text-[10px] font-bold text-[#d0c6ab] uppercase tracking-wider">
-              <span className="w-2 h-2 rounded-full bg-[#43FF77] animate-pulse" />
-              API Connection: Live
-            </div>
-            <div className="text-[10px] bg-[#000000] border border-[#ffffff0a] px-3.5 py-1.5 rounded-[4px] text-[#e5e2e1] font-mono">
-              STAGE: {view.toUpperCase()}
-            </div>
+          {/* Navigation Links in Center with active indicators */}
+          <nav className="flex items-center gap-6">
+            {navLinks.map((link) => {
+              const isActive = link.activeViews.includes(view);
+              return (
+                <button
+                  key={link.label}
+                  onClick={link.action}
+                  className={`py-1 text-xs font-black uppercase tracking-wider cursor-pointer border-b-2 transition-all ${
+                    isActive
+                      ? 'text-[#ffd700] border-b-[#ffd700]'
+                      : 'text-slate-400 hover:text-slate-200 border-b-transparent hover:border-b-[#ffffff20]'
+                  }`}
+                >
+                  {link.label}
+                </button>
+              );
+            })}
+          </nav>
+
+          {/* Right Action Button: Sign In */}
+          <div>
+            <button className="bg-[#ffd700] text-black font-black uppercase text-[10px] tracking-wider py-2 px-5 rounded-[4px] hover:bg-[#ffe16d] active:scale-95 transition-all cursor-pointer">
+              Sign In
+            </button>
           </div>
+
         </div>
       </header>
 
-      {/* Main Body - max-w-1440px */}
-      <main className="flex-1 flex items-center justify-center py-8 w-full">
+      {/* Main Body container */}
+      <main className="flex-1 flex items-center justify-center w-full">
         {view === 'home' && (
-          <HomeScreen onEnterLobby={() => setView('checkin')} />
+          <HomeScreen onEnterLobby={handleEnterLobby} />
         )}
 
         {view === 'checkin' && (
