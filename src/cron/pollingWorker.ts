@@ -152,9 +152,10 @@ export async function pollAllPlayers() {
       const items = response.items || [];
 
       for (const item of items) {
-        // 1. Strict filtering logic: type must be "challenge"
-        if (item.battle.type !== 'challenge') {
-          console.debug(`[Cron Poller] Skipping match at ${item.battleTime} because type is "${item.battle.type}" (not "challenge")`);
+        // 1. Filtering logic: accept "challenge", "ranked", "soloRanked", and "friendly"
+        const allowedTypes = ['challenge', 'ranked', 'soloRanked', 'friendly'];
+        if (!allowedTypes.includes(item.battle.type)) {
+          console.debug(`[Cron Poller] Skipping match at ${item.battleTime} because type is "${item.battle.type}" (not competitive/friendly)`);
           continue;
         }
 

@@ -174,8 +174,9 @@ async function runVerification() {
       
       console.log(`Match at ${time} [Map: "${map}"] - Type: "${type}"`);
       
-      if (type !== 'challenge') {
-        console.log(`   ❌ FILTERED OUT: Match type is not "challenge"`);
+      const allowedTypes = ['challenge', 'ranked', 'soloRanked', 'friendly'];
+      if (!allowedTypes.includes(type)) {
+        console.log(`   ❌ FILTERED OUT: Match type "${type}" is not competitive/friendly`);
         continue;
       }
       
