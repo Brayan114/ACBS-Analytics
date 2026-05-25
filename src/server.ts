@@ -227,9 +227,27 @@ app.get('/api/players/:tag', async (req: Request, res: Response) => {
       };
     });
 
+    // Map ALL brawlers for the Brawlers Tab grid
+    const allBrawlers = sortedBrawlers.map((b: any) => {
+      return {
+        id: b.id,
+        name: (b.name || 'Brawler').toUpperCase(),
+        power: b.power || 1,
+        rank: b.rank || 1,
+        trophies: formatNumberWithCommas(b.trophies || 0),
+        highestTrophies: formatNumberWithCommas(b.highestTrophies || 0),
+        portrait: `/brawlers/borderless/${b.id}.png`,
+        starPowers: (b.starPowers || []).map((sp: any) => ({ id: sp.id, name: sp.name })),
+        gadgets: (b.gadgets || []).map((g: any) => ({ id: g.id, name: g.name })),
+        gears: (b.gears || []).map((g: any) => ({ id: g.id, name: g.name }))
+      };
+    });
+
     const responsePayload = {
       tag: playerTag,
       name: data.name || 'Unknown Player',
+      iconId: data.icon && data.icon.id ? data.icon.id : 28000000,
+      nameColor: data.nameColor || '#ffffff',
       club: clubName,
       level: expLevel,
       trophies: formatNumberWithCommas(trophies),
@@ -248,7 +266,8 @@ app.get('/api/players/:tag', async (req: Request, res: Response) => {
       },
       roboRumble: data.bestRoboRumbleTime ? `Time: ${data.bestRoboRumbleTime}s` : '-',
       bigBrawler: data.bestTimeAsBigBrawler ? `Time: ${data.bestTimeAsBigBrawler}s` : '-',
-      bestBrawlers
+      bestBrawlers,
+      allBrawlers
     };
 
     return res.status(200).json(responsePayload);
@@ -260,6 +279,45 @@ app.get('/api/players/:tag', async (req: Request, res: Response) => {
   }
 });
 
+// GET /api/players/:tag/battlelog: Fetch player battle log from official API
+app.get('/api/players/:tag/battlelog', async (req: Request, res: Response) => {
+  let playerTag = req.params.tag.toUpperCase();
+  if (!playerTag.startsWith('#')) {
+    playerTag = '#' + playerTag;
+  }
+
+  const apiKey = process.env.BRAWL_STARS_API_KEY;
+  if (!apiKey) {
+    return res.status(500).json({ error: 'Brawl Stars API Key is not configured.' });
+  }
+
+  const encodedTag = encodeURIComponent(playerTag);
+  const url = `https://api.brawlstars.com/v1/players/${encodedTag}/battlelog`;
+
+  try {
+    const apiRes = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Accept': 'application/json',
+      },
+    });
+
+    if (apiRes.status === 404) {
+      return res.status(404).json({ error: 'Player or battlelog not found.' });
+    }
+
+    if (!apiRes.ok) {
+      return res.status(apiRes.status).json({ error: `Brawl Stars API error: ${apiRes.statusText}` });
+    }
+
+    const data = await apiRes.json();
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error(`[API] Error fetching battlelog for ${playerTag}:`, error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 // Serve frontend build static files in production
 import path from 'path';
