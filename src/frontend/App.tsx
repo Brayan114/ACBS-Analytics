@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { HomeScreen } from './components/HomeScreen';
 import { TelemetryCheckIn } from './components/TelemetryCheckIn';
 import { DraftDashboard } from './components/DraftDashboard';
-import { Menu, Trophy, CheckCircle2, Users, RefreshCw, BarChart2 } from 'lucide-react';
+import { Menu, Trophy, CheckCircle2, Users, RefreshCw, BarChart2, Home, User, Info, HelpCircle, Award } from 'lucide-react';
 
 interface CheckedInPlayer {
   tag: string;
@@ -17,6 +17,7 @@ type ViewState = 'home' | 'checkin' | 'draft' | 'complete';
 export const App: React.FC = () => {
   const [view, setView] = useState<ViewState>('home');
   const [players, setPlayers] = useState<CheckedInPlayer[]>([]);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const handleEnterLobby = (initialPlayerTag?: string) => {
     if (initialPlayerTag) {
@@ -46,9 +47,81 @@ export const App: React.FC = () => {
     setView('checkin');
   };
 
+  // Nav list matching CoreStats exactly
+  const navItems = [
+    { label: 'Home', viewTarget: 'home' as ViewState, icon: <Home className="w-4 h-4" /> },
+    { label: 'Teams', viewTarget: 'checkin' as ViewState, icon: <Users className="w-4 h-4" /> },
+    { label: 'Player', viewTarget: 'checkin' as ViewState, icon: <User className="w-4 h-4" /> },
+    { label: 'Scrims', viewTarget: 'checkin' as ViewState, icon: <Info className="w-4 h-4" /> },
+    { label: 'Brackets', viewTarget: 'checkin' as ViewState, icon: <HelpCircle className="w-4 h-4" /> },
+    { label: 'Tournaments', viewTarget: 'checkin' as ViewState, icon: <Trophy className="w-4 h-4" /> },
+    { label: 'Leaderboards', viewTarget: 'checkin' as ViewState, icon: <Award className="w-4 h-4" /> },
+  ];
+
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-[#e5e2e1] flex flex-col justify-between select-none font-sans">
+    <div className="min-h-screen bg-[#0A0A0A] text-[#e5e2e1] flex flex-col justify-between select-none font-sans relative overflow-x-hidden">
       
+      {/* Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300 animate-in fade-in"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar Drawer */}
+      <aside 
+        className={`fixed top-0 left-0 h-full w-[310px] bg-[#050505] border-r border-[#ffffff0a] z-50 flex flex-col transition-transform duration-300 ease-in-out shadow-2xl transform ${
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        {/* Top Header/Event Info */}
+        <div className="p-4 border-b border-[#ffffff05]">
+          <div className="rounded-xl bg-[#0a0a0a] border border-[#ffffff10] p-4 text-white shadow-lg relative overflow-hidden group min-h-[92px] flex flex-col justify-center">
+            {/* Event indicator */}
+            <div className="text-[10px] font-black uppercase tracking-widest text-[#ffffff4d] mb-1 font-sans text-left">
+              CURRENT EVENT
+            </div>
+            <h2 className="text-xl font-black leading-tight tracking-tight uppercase bg-gradient-to-r from-[#f5b93a] via-[#fdd881] to-[#f5b93a] bg-clip-text text-transparent text-left animate-pulse">
+              BSC 26
+            </h2>
+            {/* Crown Watermark background */}
+            <svg 
+              className="absolute -bottom-4 -right-4 w-20 h-20 text-white/[0.03] transform rotate-12 pointer-events-none fill-current"
+              viewBox="0 0 24 24"
+            >
+              <path d="M12 2l3 6 6-1-4 5 3 6-8-3-8 3 3-6-4-5 6 1z"/>
+            </svg>
+          </div>
+        </div>
+
+        {/* Sidebar Nav Items */}
+        <div className="flex-1 py-4 px-3 space-y-1 overflow-y-auto text-left">
+          {navItems.map((item) => {
+            const isActive = view === item.viewTarget;
+            return (
+              <button
+                key={item.label}
+                onClick={() => {
+                  setView(item.viewTarget);
+                  setIsSidebarOpen(false);
+                }}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 group text-left ${
+                  isActive 
+                    ? 'bg-[#1a1a1a] text-white border border-[#ffffff0e] shadow-lg' 
+                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <div className={`w-5 flex justify-center text-lg ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-slate-300'}`}>
+                  {item.icon}
+                </div>
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </aside>
+
       {/* Top Header bar matching CoreStats exactly */}
       <header className="border-b border-[#ffffff0c] bg-[#0A0A0A] sticky top-0 z-50">
         <div className="max-w-[1440px] mx-auto px-6 py-4 flex items-center justify-between">
@@ -59,7 +132,13 @@ export const App: React.FC = () => {
             onClick={() => setView('home')}
           >
             {/* Hamburger Menu Toggle Icon */}
-            <button className="p-1 hover:bg-slate-900 rounded transition-colors mr-1">
+            <button 
+              className="p-1 hover:bg-slate-900 rounded transition-colors mr-1"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsSidebarOpen(true);
+              }}
+            >
               <Menu className="w-5 h-5 text-slate-300" />
             </button>
 
@@ -83,7 +162,6 @@ export const App: React.FC = () => {
             </div>
           </div>
           
-
 
         </div>
       </header>
