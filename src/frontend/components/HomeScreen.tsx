@@ -31,12 +31,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onEnterLobby }) => {
   const featureList = [
     { title: 'Scrims', desc: 'Track matches and lobbies', icon: '/vs.png', action: () => onEnterLobby(), type: 'scrims' },
     { title: 'Draft', desc: 'Simulate manual 3v3 pick/bans', icon: '/3v3.png', action: () => onEnterLobby(), type: 'draft' },
-    { title: 'Tournaments', desc: 'Esports tournament brackets', icon: '/trophies.png', type: 'tournaments' },
-    { title: 'Brackets', desc: 'Playoffs structures', icon: '/championship.png', type: 'brackets' },
-    { title: 'Teams', desc: 'Active team rosters', icon: '/teams.png', type: 'teams' },
-    { title: 'Leaderboards', desc: 'Climb player standings', icon: '/prestige.png', type: 'leaderboards' },
-    { title: 'H2H', desc: 'Head-to-head stats comparison', icon: '/challenges.png', type: 'h2h' },
-    { title: 'Meta', desc: 'Brawler win rates & tier lists', icon: '/meta.png', type: 'meta' },
+    { title: 'Tournaments', desc: 'Esports tournament brackets', icon: '/trophies.png', action: () => onEnterLobby(), type: 'tournaments' },
+    { title: 'Brackets', desc: 'Playoffs structures', icon: '/championship.png', action: () => onEnterLobby(), type: 'brackets' },
+    { title: 'Teams', desc: 'Active team rosters', icon: '/teams.png', action: () => onEnterLobby(), type: 'teams' },
+    { title: 'Leaderboards', desc: 'Climb player standings', icon: '/prestige.png', action: () => onEnterLobby(), type: 'leaderboards' },
+    { title: 'H2H', desc: 'Head-to-head stats comparison', icon: '/challenges.png', action: () => onEnterLobby(), type: 'h2h' },
+    { title: 'Meta', desc: 'Brawler win rates & tier lists', icon: '/meta.png', action: () => onEnterLobby(), type: 'meta' },
   ];
 
   return (
@@ -152,9 +152,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onEnterLobby }) => {
           <div
             key={idx}
             onClick={feat.action}
-            className={`col-span-5 sm:col-span-2 bg-[#0d0d0df0] backdrop-blur-[15px] border border-[#ffffff09] hover:border-[#ffffff1c] p-6 rounded-[10px] flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-[0_0_25px_rgba(255,255,255,0.03)] group ${
-              feat.action ? '' : 'opacity-40 cursor-not-allowed'
-            }`}
+            className="col-span-5 sm:col-span-2 bg-[#0d0d0df0] backdrop-blur-[15px] border border-[#ffffff09] hover:border-[#ffffff1c] p-6 rounded-[10px] flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-[0_0_25px_rgba(255,255,255,0.03)] group"
           >
             {/* Visual Icon indicator */}
             <div className="h-12 w-12 flex items-center justify-center mb-3">
