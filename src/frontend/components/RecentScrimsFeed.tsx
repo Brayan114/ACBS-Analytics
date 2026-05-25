@@ -10,15 +10,38 @@ interface ScrimSeries {
   teamBScore: number;
 }
 
-const mockScrims: ScrimSeries[] = [
-  { id: '1', timeAgo: '15 mins ago', mode: 'Friendly 3v3 (BO5)', teamA: 'Orbit', teamAScore: 3, teamB: 'Vanguard', teamBScore: 1 },
-  { id: '2', timeAgo: '1 hour ago', mode: 'Friendly 3v3 (BO3)', teamA: 'Apex', teamAScore: 2, teamB: 'Eclipse', teamBScore: 0 },
-  { id: '3', timeAgo: '3 hours ago', mode: 'Friendly 3v3 (BO5)', teamA: 'Nova', teamAScore: 2, teamB: 'Zenith', teamBScore: 3 },
-  { id: '4', timeAgo: '5 hours ago', mode: 'Friendly 3v3 (BO3)', teamA: 'Titan', teamAScore: 1, teamB: 'Pulse', teamBScore: 2 },
-];
-
 export const RecentScrimsFeed: React.FC = () => {
-  const [scrims] = useState<ScrimSeries[]>(mockScrims);
+  const [scrims, setScrims] = useState<ScrimSeries[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  React.useEffect(() => {
+    fetch('/api/scrims/recent')
+      .then(res => res.json())
+      .then(data => {
+        const formattedData = data.map((item: any) => {
+          const diffMs = Date.now() - new Date(item.timeAgo).getTime();
+          const diffMins = Math.floor(diffMs / 60000);
+          const diffHours = Math.floor(diffMins / 60);
+          const diffDays = Math.floor(diffHours / 24);
+          
+          let timeStr = 'Just now';
+          if (diffDays > 0) timeStr = `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+          else if (diffHours > 0) timeStr = `${diffHours} hr${diffHours > 1 ? 's' : ''} ago`;
+          else if (diffMins > 0) timeStr = `${diffMins} min${diffMins > 1 ? 's' : ''} ago`;
+
+          return {
+            ...item,
+            timeAgo: timeStr
+          };
+        });
+        setScrims(formattedData);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Error fetching recent scrims:', err);
+        setLoading(false);
+      });
+  }, []);
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4 py-8 animate-in fade-in slide-in-from-bottom-4 duration-500 font-sans">
@@ -38,9 +61,29 @@ export const RecentScrimsFeed: React.FC = () => {
 
       {/* Feed Container */}
       <div className="flex flex-col gap-4 bg-[#131313] p-4 rounded-2xl border border-[#ffffff0a] min-h-[500px]">
-        {scrims.map((scrim) => {
-          const aWon = scrim.teamAScore > scrim.teamBScore;
-          const bWon = scrim.teamBScore > scrim.teamAScore;
+        {loading ? (
+          <div className="flex flex-col gap-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-[#1E1E1E] rounded-xl border border-[#ffffff10] p-4 md:p-6 shadow-xl relative overflow-hidden">
+                <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-[#ffffff05] to-transparent" />
+                <div className="flex justify-between mb-4">
+                  <div className="w-20 h-3 bg-[#ffffff10] rounded-full animate-pulse" />
+                  <div className="w-16 h-4 bg-[#ffffff10] rounded-md animate-pulse" />
+                </div>
+                <div className="flex justify-between items-center">
+                  <div className="w-24 h-6 bg-[#ffffff10] rounded-md animate-pulse" />
+                  <div className="w-px h-8 bg-[#ffffff10]" />
+                  <div className="w-24 h-6 bg-[#ffffff10] rounded-md animate-pulse" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : scrims.length === 0 ? (
+          <div className="text-center py-12 text-slate-500 text-sm">No recent scrims found.</div>
+        ) : (
+          scrims.map((scrim) => {
+            const aWon = scrim.teamAScore > scrim.teamBScore;
+            const bWon = scrim.teamBScore > scrim.teamAScore;
           
           return (
             <div key={scrim.id} className="bg-[#1E1E1E] rounded-xl border border-[#ffffff10] p-4 md:p-6 shadow-xl hover:border-[#ffffff20] transition-colors">
@@ -88,7 +131,8 @@ export const RecentScrimsFeed: React.FC = () => {
               </div>
             </div>
           );
-        })}
+        })
+        )}
       </div>
       
     </div>

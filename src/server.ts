@@ -132,6 +132,64 @@ function formatNumberWithCommas(value: number | string): string {
   return num.toLocaleString('en-US');
 }
 
+// GET /api/scrims/recent: Fetch recent matches
+app.get('/api/scrims/recent', async (req: Request, res: Response) => {
+  const client = await pool.connect();
+  try {
+    const query = `
+      SELECT 
+        m.match_id, 
+        m.created_at, 
+        m.game_mode, 
+        m.blue_team_id, 
+        m.red_team_id,
+        m.winner_team_id,
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'player_tag', p.player_tag,
+              'team_id', p.team_id,
+              'brawler_id', p.brawler_id,
+              'is_win', p.is_win,
+              'is_mvp', p.is_mvp
+            )
+          ) FILTER (WHERE p.player_tag IS NOT NULL), '[]'
+        ) as players
+      FROM matches m
+      LEFT JOIN match_player_performance p ON m.match_id = p.match_id
+      GROUP BY m.match_id
+      ORDER BY m.created_at DESC
+      LIMIT 20;
+    `;
+    const result = await client.query(query);
+    
+    const scrims = result.rows.map((row: any) => {
+      let teamAScore = 0;
+      let teamBScore = 0;
+      if (row.winner_team_id === 'blue') teamAScore = 1;
+      else if (row.winner_team_id === 'red') teamBScore = 1;
+
+      return {
+        id: row.match_id,
+        timeAgo: row.created_at,
+        mode: row.game_mode || 'Friendly 3v3',
+        teamA: (row.blue_team_id === 'blue' || !row.blue_team_id) ? 'Blue Team' : row.blue_team_id,
+        teamAScore,
+        teamB: (row.red_team_id === 'red' || !row.red_team_id) ? 'Red Team' : row.red_team_id,
+        teamBScore,
+        players: row.players
+      };
+    });
+
+    res.json(scrims);
+  } catch (error) {
+    console.error('[API] Error fetching recent scrims:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    client.release();
+  }
+});
+
 // GET /api/players/:tag: Fetch player profile from official API and map to PlayerProfile format
 app.get('/api/players/:tag', async (req: Request, res: Response) => {
   let playerTag = req.params.tag.toUpperCase();
