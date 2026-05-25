@@ -29,44 +29,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onEnterLobby }) => {
 
   // 8 Feature cards matching corestats options
   const featureList = [
-    { title: 'Scrims', desc: 'Track matches and lobbies', icon: '/scrims_icon.png', action: () => onEnterLobby(), type: 'scrims' },
-    { title: 'Draft', desc: 'Simulate manual 3v3 pick/bans', icon: '/draft_icon.png', action: () => onEnterLobby(), type: 'draft' },
-    { title: 'Tournaments', desc: 'Esports tournament brackets', icon: '/tournaments_icon.png', type: 'tournaments' },
-    { title: 'Brackets', desc: 'Playoffs structures', icon: '/brackets_icon.png', type: 'brackets' },
-    { title: 'Teams', desc: 'Active team rosters', icon: '/teams_icon.png', type: 'teams' },
-    { title: 'Leaderboards', desc: 'Climb player standings', icon: '/leaderboards_icon.png', type: 'leaderboards' },
-    { title: 'H2H', desc: 'Head-to-head stats comparison', icon: '/h2h_icon.png', type: 'h2h' },
-    { title: 'Meta', desc: 'Brawler win rates & tier lists', icon: '/meta_icon.png', type: 'meta' },
+    { title: 'Scrims', desc: 'Track matches and lobbies', icon: '/vs.png', action: () => onEnterLobby(), type: 'scrims' },
+    { title: 'Draft', desc: 'Simulate manual 3v3 pick/bans', icon: '/3v3.png', action: () => onEnterLobby(), type: 'draft' },
+    { title: 'Tournaments', desc: 'Esports tournament brackets', icon: '/trophies.png', type: 'tournaments' },
+    { title: 'Brackets', desc: 'Playoffs structures', icon: '/championship.png', type: 'brackets' },
+    { title: 'Teams', desc: 'Active team rosters', icon: '/teams.png', type: 'teams' },
+    { title: 'Leaderboards', desc: 'Climb player standings', icon: '/prestige.png', type: 'leaderboards' },
+    { title: 'H2H', desc: 'Head-to-head stats comparison', icon: '/challenges.png', type: 'h2h' },
+    { title: 'Meta', desc: 'Brawler win rates & tier lists', icon: '/meta.png', type: 'meta' },
   ];
-
-  // Helper to map feature icons matching corestats
-  const renderFeatureIcon = (type: string) => {
-    switch (type) {
-      case 'scrims':
-        return (
-          <div className="flex gap-1 justify-center items-center">
-            <span className="w-5 h-5 bg-red-600 flex items-center justify-center font-bold text-[9px] text-white rounded-sm">VS</span>
-            <span className="w-5 h-5 bg-blue-600 flex items-center justify-center font-bold text-[9px] text-white rounded-sm">VS</span>
-          </div>
-        );
-      case 'draft':
-        return <span className="font-sans font-black text-lg text-white">VS</span>;
-      case 'tournaments':
-        return <div className="text-amber-500 font-bold text-lg">🏆</div>;
-      case 'brackets':
-        return <div className="text-yellow-500 font-bold text-xs">BRAWL CHAMP</div>;
-      case 'teams':
-        return <div className="text-slate-200 font-bold text-lg">👥</div>;
-      case 'leaderboards':
-        return <div className="text-blue-400 font-bold text-lg">👑</div>;
-      case 'h2h':
-        return <div className="text-pink-500 font-bold text-lg">⚔️</div>;
-      case 'meta':
-        return <div className="text-orange-500 font-bold text-lg">👑</div>;
-      default:
-        return null;
-    }
-  };
 
   return (
     <div className="w-full max-w-[1440px] mx-auto px-4 md:px-8 py-10 space-y-8 animate-in fade-in duration-300 relative">
@@ -173,7 +144,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onEnterLobby }) => {
           >
             {/* Visual Icon indicator */}
             <div className="h-10 flex items-center justify-center mb-3">
-              {renderFeatureIcon(feat.type)}
+              <img src={feat.icon} alt={feat.title} className="w-8 h-8 object-contain" />
             </div>
             
             <h4 className="text-xs font-black uppercase tracking-wider text-slate-200">
