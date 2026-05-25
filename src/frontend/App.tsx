@@ -83,13 +83,7 @@ export const App: React.FC = () => {
             </div>
           </div>
           
-          {/* Right Status */}
-          <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#43FF77] animate-pulse" />
-            <span className="text-[9px] uppercase font-bold text-slate-500 tracking-wider font-mono">
-              Link: OK
-            </span>
-          </div>
+
 
         </div>
       </header>
