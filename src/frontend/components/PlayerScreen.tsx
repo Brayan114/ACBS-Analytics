@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Search, Flame, Star } from 'lucide-react';
 
 interface PlayerProfile {
@@ -38,10 +38,11 @@ interface PlayerProfile {
 
 interface PlayerScreenProps {
   onBackToHome: () => void;
+  initialTag?: string;
 }
 
-export const PlayerScreen: React.FC<PlayerScreenProps> = ({ onBackToHome }) => {
-  const [searchTag, setSearchTag] = useState('');
+export const PlayerScreen: React.FC<PlayerScreenProps> = ({ onBackToHome, initialTag }) => {
+  const [searchTag, setSearchTag] = useState(initialTag || '');
   const [profile, setProfile] = useState<PlayerProfile | null>(null);
   const [activeTab, setActiveTab] = useState<'profile' | 'brawlers' | 'analytics' | 'battlelog'>('profile');
   const [loading, setLoading] = useState(false);
@@ -86,20 +87,15 @@ export const PlayerScreen: React.FC<PlayerScreenProps> = ({ onBackToHome }) => {
     ]
   };
 
-  const handleSearchSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchTag.trim()) {
-      setProfile(null);
-      setError(null);
-      return;
-    }
+  const fetchPlayer = useCallback(async (tag: string) => {
+    if (!tag.trim()) return;
 
     setLoading(true);
     setError(null);
     setProfile(null);
 
     try {
-      let formattedTag = searchTag.trim().toUpperCase();
+      let formattedTag = tag.trim().toUpperCase();
       if (!formattedTag.startsWith('#')) {
         formattedTag = '#' + formattedTag;
       }
@@ -120,6 +116,23 @@ export const PlayerScreen: React.FC<PlayerScreenProps> = ({ onBackToHome }) => {
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  // Auto-search when navigating with a pre-filled tag from home screen
+  useEffect(() => {
+    if (initialTag && initialTag.trim()) {
+      fetchPlayer(initialTag);
+    }
+  }, [initialTag, fetchPlayer]);
+
+  const handleSearchSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchTag.trim()) {
+      setProfile(null);
+      setError(null);
+      return;
+    }
+    fetchPlayer(searchTag);
   };
 
   return (

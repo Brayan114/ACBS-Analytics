@@ -4,15 +4,18 @@ import { Search, MessageSquare, ExternalLink, X, Compass, Award, Calendar, BarCh
 interface HomeScreenProps {
   onEnterLobby: (initialPlayerTag?: string) => void;
   onViewTeams?: () => void;
+  onSearchPlayer?: (tag: string) => void;
 }
 
-export const HomeScreen: React.FC<HomeScreenProps> = ({ onEnterLobby, onViewTeams }) => {
+export const HomeScreen: React.FC<HomeScreenProps> = ({ onEnterLobby, onViewTeams, onSearchPlayer }) => {
   const [searchTag, setSearchTag] = useState('');
   const [showAlert, setShowAlert] = useState(true);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchTag.trim()) {
+    if (searchTag.trim() && onSearchPlayer) {
+      onSearchPlayer(searchTag.trim().toUpperCase());
+    } else if (searchTag.trim()) {
       onEnterLobby(searchTag.trim().toUpperCase());
     } else {
       onEnterLobby();

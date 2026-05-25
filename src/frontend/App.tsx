@@ -20,6 +20,7 @@ export const App: React.FC = () => {
   const [view, setView] = useState<ViewState>('home');
   const [players, setPlayers] = useState<CheckedInPlayer[]>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [initialPlayerTag, setInitialPlayerTag] = useState<string>('');
 
   const handleEnterLobby = (initialPlayerTag?: string) => {
     if (initialPlayerTag) {
@@ -174,6 +175,10 @@ export const App: React.FC = () => {
           <HomeScreen 
             onEnterLobby={handleEnterLobby} 
             onViewTeams={() => setView('teams')}
+            onSearchPlayer={(tag: string) => {
+              setInitialPlayerTag(tag);
+              setView('player');
+            }}
           />
         )}
 
@@ -182,7 +187,7 @@ export const App: React.FC = () => {
         )}
 
         {view === 'player' && (
-          <PlayerScreen onBackToHome={() => setView('home')} />
+          <PlayerScreen onBackToHome={() => setView('home')} initialTag={initialPlayerTag} />
         )}
 
         {view === 'checkin' && (
