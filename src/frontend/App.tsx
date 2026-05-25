@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { HomeScreen } from './components/HomeScreen';
 import { TelemetryCheckIn } from './components/TelemetryCheckIn';
 import { DraftDashboard } from './components/DraftDashboard';
-import { Trophy, CheckCircle2, Users, RefreshCw, BarChart2 } from 'lucide-react';
+import { Menu, Trophy, CheckCircle2, Users, RefreshCw, BarChart2 } from 'lucide-react';
 
 interface CheckedInPlayer {
   tag: string;
@@ -20,7 +20,6 @@ export const App: React.FC = () => {
 
   const handleEnterLobby = (initialPlayerTag?: string) => {
     if (initialPlayerTag) {
-      // Pre-populate with the searched player tag (marked at 0ms until tested)
       const newPlayer: CheckedInPlayer = {
         tag: initialPlayerTag.toUpperCase(),
         name: 'Searched Player',
@@ -28,7 +27,6 @@ export const App: React.FC = () => {
         rtt: 0,
         regionTag: 'Awaiting Test',
       };
-      // Overwrite or append player to the lobby
       setPlayers((prev) => [...prev.filter(p => p.tag !== newPlayer.tag), newPlayer]);
     }
     setView('checkin');
@@ -48,29 +46,25 @@ export const App: React.FC = () => {
     setView('checkin');
   };
 
-  // Navigation Links structure
-  const navLinks = [
-    { label: 'Scrims', activeViews: ['checkin', 'complete'] as ViewState[], action: () => setView('checkin') },
-    { label: 'Draft', activeViews: ['draft'] as ViewState[], action: () => setView('draft') },
-    { label: 'Tournaments', activeViews: [] as ViewState[], action: () => setView('home') },
-    { label: 'Meta', activeViews: [] as ViewState[], action: () => setView('home') },
-    { label: 'Leaderboards', activeViews: [] as ViewState[], action: () => setView('home') }
-  ];
-
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-[#e5e2e1] flex flex-col justify-between select-none">
+    <div className="min-h-screen bg-[#0A0A0A] text-[#e5e2e1] flex flex-col justify-between select-none font-sans">
       
-      {/* Top Navigation Header matching Stitch Export mockup exactly */}
-      <header className="border-b border-[#ffffff10] bg-[#12121280] backdrop-blur-[20px] sticky top-0 z-50">
+      {/* Top Header bar matching CoreStats exactly */}
+      <header className="border-b border-[#ffffff0c] bg-[#0A0A0A] sticky top-0 z-50">
         <div className="max-w-[1440px] mx-auto px-6 py-4 flex items-center justify-between">
           
-          {/* Logo Group: Shield SVG + Text "ACBS" */}
+          {/* Left: Hamburger + ACBS Shield SVG + CoreStats Style Text */}
           <div 
             className="flex items-center gap-3 cursor-pointer group" 
             onClick={() => setView('home')}
           >
+            {/* Hamburger Menu Toggle Icon */}
+            <button className="p-1 hover:bg-slate-900 rounded transition-colors mr-1">
+              <Menu className="w-5 h-5 text-slate-300" />
+            </button>
+
             {/* SVG Logo extracted directly from acbs_analytics_logo/code.html */}
-            <svg width="34" height="34" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="group-hover:scale-105 transition-transform duration-300">
+            <svg width="30" height="30" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M100 20L30 50V100C30 144.183 61.3401 180 100 180C138.66 180 170 144.183 170 100V50L100 20Z" fill="#121212" stroke="#FFD700" stroke-width="8"/>
               <path d="M100 40L150 62V100C150 128.5 130 158 100 162C70 158 50 128.5 50 100V62L100 40Z" fill="#1A1A1A"/>
               <text x="50%" y="105" text-anchor="middle" fill="#FFD700" font-family="Montserrat, sans-serif" font-weight="900" font-size="32">ACBS</text>
@@ -78,42 +72,29 @@ export const App: React.FC = () => {
               <path d="M85 65C85 65 95 60 100 70C105 60 115 65 115 65" stroke="#FFD700" stroke-width="2" stroke-linecap="round"/>
             </svg>
 
-            <h1 className="font-black text-xl text-[#ffd700] uppercase tracking-wider font-sans leading-none hidden sm:block">
-              ACBS
-            </h1>
+            {/* CoreStats style header text labeled for ACBS */}
+            <div className="flex flex-col text-left">
+              <span className="font-extrabold text-sm text-[#e5e2e1] uppercase tracking-wide leading-tight">
+                ACBS Analytics
+              </span>
+              <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest leading-none">
+                BSC Analytics
+              </span>
+            </div>
           </div>
           
-          {/* Navigation Links in Center with active indicators */}
-          <nav className="flex items-center gap-6">
-            {navLinks.map((link) => {
-              const isActive = link.activeViews.includes(view);
-              return (
-                <button
-                  key={link.label}
-                  onClick={link.action}
-                  className={`py-1 text-xs font-black uppercase tracking-wider cursor-pointer border-b-2 transition-all ${
-                    isActive
-                      ? 'text-[#ffd700] border-b-[#ffd700]'
-                      : 'text-slate-400 hover:text-slate-200 border-b-transparent hover:border-b-[#ffffff20]'
-                  }`}
-                >
-                  {link.label}
-                </button>
-              );
-            })}
-          </nav>
-
-          {/* Right Action Button: Sign In */}
-          <div>
-            <button className="bg-[#ffd700] text-black font-black uppercase text-[10px] tracking-wider py-2 px-5 rounded-[4px] hover:bg-[#ffe16d] active:scale-95 transition-all cursor-pointer">
-              Sign In
-            </button>
+          {/* Right Status */}
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#43FF77] animate-pulse" />
+            <span className="text-[9px] uppercase font-bold text-slate-500 tracking-wider font-mono">
+              Link: OK
+            </span>
           </div>
 
         </div>
       </header>
 
-      {/* Main Body container */}
+      {/* Main Body */}
       <main className="flex-1 flex items-center justify-center w-full">
         {view === 'home' && (
           <HomeScreen onEnterLobby={handleEnterLobby} />
@@ -133,7 +114,7 @@ export const App: React.FC = () => {
             <DraftDashboard
               players={players}
               onDraftSubmitComplete={handleDraftSubmitComplete}
-              onBackToCheckIn={() => setView('checkin')}
+              onBackToCheckIn={() => setView('home')}
             />
           </div>
         )}
@@ -194,13 +175,38 @@ export const App: React.FC = () => {
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-[#ffffff08] bg-[#0A0A0A] py-5 text-center text-[9px] text-slate-600 font-bold uppercase tracking-wider">
-        <div className="max-w-[1440px] mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-3">
-          <span>&copy; 2026 ACBS Analytics Platform. All Rights Reserved.</span>
-          <span className="font-semibold text-slate-500">Supercell Fan Content Policy Compliant</span>
+      {/* Footer matching CoreStats exactly */}
+      <footer className="border-t border-[#ffffff08] bg-[#0A0A0A] py-8 text-xs text-slate-500 select-none">
+        <div className="max-w-[1440px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-3">
+            {/* SVG Logo Footer */}
+            <svg width="24" height="24" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="opacity-40">
+              <path d="M100 20L30 50V100C30 144.183 61.3401 180 100 180C138.66 180 170 144.183 170 100V50L100 20Z" fill="#121212" stroke="#FFD700" stroke-width="8"/>
+              <path d="M100 40L150 62V100C150 128.5 130 158 100 162C70 158 50 128.5 50 100V62L100 40Z" fill="#1A1A1A"/>
+            </svg>
+            <div className="flex flex-col text-left">
+              <span className="font-extrabold text-[11px] text-[#e5e2e1] uppercase leading-tight">ACBS Analytics</span>
+              <span className="text-[8px] text-slate-600 uppercase tracking-widest leading-none">Analytics Platform</span>
+            </div>
+          </div>
+          
+          <div className="text-center md:text-right max-w-md">
+            <p className="text-[9px] text-slate-600 leading-normal mb-3">
+              This content is not affiliated with, endorsed, sponsored, or specifically approved by Supercell and Supercell is not responsible for it. For more information see Supercell's Fan Content Policy.
+            </p>
+            <div className="flex justify-center md:justify-end items-center gap-4 text-[9px] font-bold uppercase tracking-wider text-slate-500">
+              <span>&copy; 2026 ACBS Analytics</span>
+              <span>•</span>
+              <span className="hover:text-slate-300 cursor-pointer">Privacy</span>
+              <span>•</span>
+              <span className="hover:text-slate-300 cursor-pointer">X</span>
+              <span>•</span>
+              <span className="hover:text-[#00eefc] cursor-pointer">Discord</span>
+            </div>
+          </div>
         </div>
       </footer>
+
     </div>
   );
 };
