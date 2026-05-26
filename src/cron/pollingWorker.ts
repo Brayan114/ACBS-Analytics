@@ -230,8 +230,8 @@ export async function pollAllPlayers() {
 
             const performanceInsertQuery = `
               INSERT INTO match_player_performance (
-                match_id, player_tag, team_id, brawler_id, is_win, is_mvp
-              ) VALUES ($1, $2, $3, $4, $5, $6);
+                match_id, player_tag, player_name, team_id, brawler_id, is_win, is_mvp
+              ) VALUES ($1, $2, $3, $4, $5, $6, $7);
             `;
 
             const starPlayerTag = item.battle.starPlayer?.tag;
@@ -246,6 +246,7 @@ export async function pollAllPlayers() {
                 await client.query(performanceInsertQuery, [
                   matchId,
                   playerInfo.tag,
+                  playerInfo.name || playerInfo.tag,
                   currentTeamId,
                   playerInfo.brawler.name,
                   isWin,

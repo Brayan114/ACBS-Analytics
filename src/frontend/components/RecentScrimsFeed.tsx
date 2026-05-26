@@ -1,13 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-
-interface ScrimPlayer {
-  player_tag: string;
-  team_id: string;
-  brawler_id: string;
-  is_win: boolean;
-  is_mvp: boolean;
-}
+import { resolveTeamName, ScrimPlayer } from '../teamResolver';
 
 interface ScrimSeries {
   id: string;
@@ -96,16 +89,6 @@ export const RecentScrimsFeed: React.FC = () => {
             const aWon = scrim.teamAScore > scrim.teamBScore;
             const bWon = scrim.teamBScore > scrim.teamAScore;
             const isExpanded = expandedId === scrim.id;
-            
-            const resolveTeamName = (teamName: string, teamPlayers: any[]) => {
-              if (teamName !== 'blue' && teamName !== 'red' && teamName !== 'Blue Team' && teamName !== 'Red Team') {
-                return teamName;
-              }
-              if (teamPlayers && teamPlayers.length > 0 && teamPlayers[0].player_tag) {
-                return `${teamPlayers[0].player_tag}'s Team`;
-              }
-              return teamName;
-            };
 
             const bluePlayers = scrim.players?.filter((p) => p.team_id === 'blue') || [];
             const redPlayers = scrim.players?.filter((p) => p.team_id === 'red') || [];

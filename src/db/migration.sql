@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS match_player_performance (
     performance_id SERIAL PRIMARY KEY,
     match_id VARCHAR(255) REFERENCES matches(match_id) ON DELETE CASCADE,
     player_tag VARCHAR(255) NOT NULL,
+    player_name VARCHAR(255),
     team_id VARCHAR(255),
     brawler_id VARCHAR(255) NOT NULL,
     is_win BOOLEAN NOT NULL DEFAULT FALSE,

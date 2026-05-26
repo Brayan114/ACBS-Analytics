@@ -85,8 +85,8 @@ app.post('/api/drafts', async (req: Request, res: Response) => {
     // Query template for player performance logs
     const performanceInsertQuery = `
       INSERT INTO match_player_performance (
-        match_id, player_tag, team_id, brawler_id, is_win, is_mvp
-      ) VALUES ($1, $2, $3, $4, $5, $6);
+        match_id, player_tag, player_name, team_id, brawler_id, is_win, is_mvp
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7);
     `;
 
     // Insert Blue Team
@@ -94,6 +94,7 @@ app.post('/api/drafts', async (req: Request, res: Response) => {
       await client.query(performanceInsertQuery, [
         matchId,
         player.tag,
+        player.name || player.tag,
         'blue',
         player.brawlerId,
         false,
@@ -106,6 +107,7 @@ app.post('/api/drafts', async (req: Request, res: Response) => {
       await client.query(performanceInsertQuery, [
         matchId,
         player.tag,
+        player.name || player.tag,
         'red',
         player.brawlerId,
         false,
@@ -148,6 +150,7 @@ app.get('/api/scrims/recent', async (req: Request, res: Response) => {
           json_agg(
             json_build_object(
               'player_tag', p.player_tag,
+              'player_name', p.player_name,
               'team_id', p.team_id,
               'brawler_id', p.brawler_id,
               'is_win', p.is_win,
@@ -412,10 +415,18 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 });
 
 // Start Server & Worker
-app.listen(port, () => {
+app.listen(port, async () => {
   console.log(`========================================`);
   console.log(`🚀 Server is running on port ${port}`);
   console.log(`========================================`);
+
+  // Run DB schema migration/alter to ensure column exists
+  try {
+    await pool.query('ALTER TABLE match_player_performance ADD COLUMN IF NOT EXISTS player_name VARCHAR(255);');
+    console.log('[Database] Migrated: player_name column ensured in match_player_performance.');
+  } catch (dbMigrateErr) {
+    console.error('[Database] Failed to run migration query:', dbMigrateErr);
+  }
 
   // Initialize background polling cron task
   try {
