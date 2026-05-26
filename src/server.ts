@@ -151,13 +151,21 @@ app.get('/api/scrims/recent', async (req: Request, res: Response) => {
             json_build_object(
               'player_tag', p.player_tag,
               'player_name', p.player_name,
-              'team_id', p.team_id,
               'brawler_id', p.brawler_id,
-              'is_win', p.is_win,
               'is_mvp', p.is_mvp
             )
-          ) FILTER (WHERE p.player_tag IS NOT NULL), '[]'
-        ) as players
+          ) FILTER (WHERE p.player_tag IS NOT NULL AND p.team_id = 'blue'), '[]'
+        ) as blue_players,
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'player_tag', p.player_tag,
+              'player_name', p.player_name,
+              'brawler_id', p.brawler_id,
+              'is_mvp', p.is_mvp
+            )
+          ) FILTER (WHERE p.player_tag IS NOT NULL AND p.team_id = 'red'), '[]'
+        ) as red_players
       FROM matches m
       LEFT JOIN match_player_performance p ON m.match_id = p.match_id
       GROUP BY m.match_id
@@ -180,7 +188,8 @@ app.get('/api/scrims/recent', async (req: Request, res: Response) => {
         teamAScore,
         teamB: (row.red_team_id === 'red' || !row.red_team_id) ? 'Red Team' : row.red_team_id,
         teamBScore,
-        players: row.players
+        bluePlayers: row.blue_players,
+        redPlayers: row.red_players
       };
     });
 

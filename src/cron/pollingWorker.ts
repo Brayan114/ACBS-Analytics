@@ -248,7 +248,7 @@ export async function pollAllPlayers() {
                   playerInfo.tag,
                   playerInfo.name || playerInfo.tag,
                   currentTeamId,
-                  playerInfo.brawler.name,
+                  playerInfo.brawler.id.toString(),
                   isWin,
                   isMvp,
                 ]);

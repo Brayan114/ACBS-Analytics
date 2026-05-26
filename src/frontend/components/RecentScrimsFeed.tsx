@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { resolveTeamName, ScrimPlayer } from '../teamResolver';
+import { resolveTeamName, resolveBrawlerId, ScrimPlayer } from '../teamResolver';
 
 interface ScrimSeries {
   id: string;
@@ -10,7 +10,8 @@ interface ScrimSeries {
   teamAScore: number;
   teamB: string;
   teamBScore: number;
-  players?: ScrimPlayer[];
+  bluePlayers?: ScrimPlayer[];
+  redPlayers?: ScrimPlayer[];
 }
 
 export const RecentScrimsFeed: React.FC = () => {
@@ -90,8 +91,8 @@ export const RecentScrimsFeed: React.FC = () => {
             const bWon = scrim.teamBScore > scrim.teamAScore;
             const isExpanded = expandedId === scrim.id;
 
-            const bluePlayers = scrim.players?.filter((p) => p.team_id === 'blue') || [];
-            const redPlayers = scrim.players?.filter((p) => p.team_id === 'red') || [];
+            const bluePlayers = scrim.bluePlayers || [];
+            const redPlayers = scrim.redPlayers || [];
 
             const teamAName = resolveTeamName(scrim.teamA, bluePlayers);
             const teamBName = resolveTeamName(scrim.teamB, redPlayers);
@@ -177,10 +178,10 @@ export const RecentScrimsFeed: React.FC = () => {
                                 {bluePlayers.map((p, idx) => (
                                   <img 
                                     key={idx} 
-                                    src={`/brawlers/borderless/${p.brawler_id || 16000000}.png`} 
+                                    src={`/brawlers/borderless/${resolveBrawlerId(p.brawler_id)}.png`} 
                                     alt="brawler" 
-                                    className="w-5 h-5 object-cover rounded-sm border border-blue-900 bg-black z-10 hover:z-20 transition-transform hover:scale-110" 
-                                    title={p.player_tag} 
+                                    className="w-5 h-5 object-cover rounded-full border border-blue-900 bg-black z-10 hover:z-20 transition-transform hover:scale-110" 
+                                    title={p.player_name || p.player_tag} 
                                     onError={(e) => (e.currentTarget.style.display = 'none')} 
                                   />
                                 ))}
@@ -192,10 +193,10 @@ export const RecentScrimsFeed: React.FC = () => {
                                 {redPlayers.map((p, idx) => (
                                   <img 
                                     key={idx} 
-                                    src={`/brawlers/borderless/${p.brawler_id || 16000000}.png`} 
+                                    src={`/brawlers/borderless/${resolveBrawlerId(p.brawler_id)}.png`} 
                                     alt="brawler" 
-                                    className="w-5 h-5 object-cover rounded-sm border border-red-900 bg-black z-10 hover:z-20 transition-transform hover:scale-110" 
-                                    title={p.player_tag} 
+                                    className="w-5 h-5 object-cover rounded-full border border-red-900 bg-black z-10 hover:z-20 transition-transform hover:scale-110" 
+                                    title={p.player_name || p.player_tag} 
                                     onError={(e) => (e.currentTarget.style.display = 'none')} 
                                   />
                                 ))}
